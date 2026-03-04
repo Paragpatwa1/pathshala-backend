@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  name          String
+  email         String    @unique
+  password      String?
+  provider      AuthProvider @default(LOCAL)
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+   bookings      Booking[] 
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}
+
+enum SeatCategory {
+  Common
+  Reserved
+  Cabin
+}
+
+model Seat {
+  id        Int          @id @default(autoincrement())
+  seatNumber Int         @unique
+  category  SeatCategory
+  isBooked  Boolean      @default(false)
+
+  bookings  Booking[]
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model Booking {
+  id                Int      @id @default(autoincrement())
+
+  // 🔗 Relations
+  userId            Int
+  seatId            Int
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seat              Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+
+  // 📅 Booking Dates
+  startDate         DateTime
+  endDate           DateTime
+  months            Int
+
+  // 💰 Pricing
+  pricePerMonth     Int
+  subtotal          Int
+  discount          Int
+  finalAmount       Int
+
+  // 💳 Razorpay
+  razorpayOrderId   String?   @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+
+  paymentStatus     BookingStatus @default(PENDING)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([seatId])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
