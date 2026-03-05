@@ -47,9 +47,9 @@ export class AuthController {
   async googleCallback(@Req() req, @Res() res: Response) {
     const data = await this.authService.googleLogin(req.user);
 
-    return res.redirect(
-      `http://localhost:3001/auth-success?token=${data.access_token}`,
-    );
+   return res.redirect(
+  `https://library-pathshala-ui.vercel.app/auth-success?token=${data.access_token}`,
+);
   }
 
   @Get('profile')
