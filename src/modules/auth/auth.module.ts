@@ -11,16 +11,15 @@ import { JwtStrategy } from './jwt.strategy';
   imports: [
     PrismaModule,
 
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService): JwtModuleOptions => ({
-        secret: config.get<string>('JWT_SECRET')!,
-        signOptions: {
-          // Cast properly to satisfy strict type
-          expiresIn: config.get<string>('JWT_EXPIRES_IN') as unknown as number,
-        },
-      }),
-    }),
+   JwtModule.registerAsync({
+  inject: [ConfigService],
+  useFactory: (config: ConfigService): JwtModuleOptions => ({
+    secret: config.get<string>('JWT_SECRET'),
+    signOptions: {
+      expiresIn: (config.get<string>('JWT_EXPIRES_IN') as any) || '1d',
+    },
+  }),
+}),
   ],
 
   controllers: [AuthController],
