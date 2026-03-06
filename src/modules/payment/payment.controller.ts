@@ -3,10 +3,13 @@ import {
   Post,
   Body,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CreateOrderDto } from './dto/create-order.dto';
+
 import * as crypto from 'crypto';
 
 @ApiTags('Payment')
@@ -17,12 +20,16 @@ export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
   @Post('create-order')
-  async createOrder(@Body() body: { amount: number }) {
+  async createOrder(
+    @Body() body: CreateOrderDto,
+    @Req() req: any,
+  ) {
     return this.paymentService.createOrder(body.amount);
   }
 
   @Post('verify')
   async verifyPayment(@Body() body: any) {
+
     const {
       razorpay_order_id,
       razorpay_payment_id,
