@@ -130,4 +130,29 @@ async register(dto: RegisterDto) {
   },
 };
 }
+ async changePassword(userId: number, current: string, newPass: string) {
+
+  const user = await this.prisma.user.findUnique({
+    where: { id: userId }
+  });
+
+  if (!user || !user.password) {
+    throw new UnauthorizedException("User not found");
+  }
+
+  const match = await bcrypt.compare(current, user.password);
+
+  if (!match) {
+    throw new UnauthorizedException("Wrong password");
+  }
+
+  const hash = await bcrypt.hash(newPass, 10);
+
+  await this.prisma.user.update({
+    where: { id: userId },
+    data: { password: hash }
+  });
+
+  return { message: "Password updated successfully" };
+}
 }
